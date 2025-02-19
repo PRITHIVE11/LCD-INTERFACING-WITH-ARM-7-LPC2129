@@ -1,0 +1,55 @@
+#include<lpc21xx.h>
+#include"delay_header.h"
+#include<string.h>
+#define LCD_D 0xff<<0
+#define RS 1<<8
+#define E 1<<9
+
+void LCD_INIT(void);
+void LCD_CMD(unsigned char);
+void LCD_DATA(unsigned char);
+
+int main()
+{
+	int i;
+	char a[]="PRITHIVE";
+	LCD_INIT();
+		for(i=0;i<8;i++){
+	LCD_DATA(a[i]);
+			
+		}
+}
+
+void LCD_INIT(void)
+{
+	IODIR0=LCD_D|RS|E;//P0.0 to P0.9 as Output pins
+	LCD_CMD(0x01);//To clear the display
+	LCD_CMD(0x02);//Return cursor to home position
+	LCD_CMD(0x38);//8-bit interfacing mode with both lines
+	LCD_CMD(0x0C);//Display ON,Cursor Off
+	LCD_CMD(0x80);//Select starting address of DDRAM
+	LCD_CMD(0x1C);
+	
+}
+
+void LCD_CMD(unsigned char cmd)
+{
+	IOCLR0=LCD_D;//clear the data pins
+	IOSET0=cmd;//assigning command to the data pins
+	IOCLR0=RS;//command register is selected
+	IOSET0=E;//latch the data to the LCD
+	delay_milliseconds(2);//LCD is in internal operation mode
+	IOCLR0=E;//To re-latch the next byte
+	
+}
+
+void LCD_DATA(unsigned char d)
+{
+	IOCLR0=LCD_D;
+	IOSET0=d;//Assigning data to the data pins
+	IOSET0=RS;//data register is selected
+	IOSET0=E;//latch the data to LCD
+	delay_milliseconds(2);//LCD is in internal operation mode
+	IOCLR0=E;//To re-latch the next byte
+	
+}
